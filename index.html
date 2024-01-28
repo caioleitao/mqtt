@@ -1,0 +1,57 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>MQTT</title>
+</head>
+<body>
+    <center>
+    <h1>Atividade de MQTT</h1>
+    <input type="text" id="topicInput" placeholder="Digite o tópico">
+    <br/>
+    <button onclick="subscribe()">Subscribe</button>
+    <button onclick="unsubscribe()">Unsubscribe</button>
+    <div id="messages"></div>
+    </center>
+    <script>
+        const source = new EventSource('/events');
+
+        source.onmessage = function(event) {
+            const data = JSON.parse(event.data);
+            const messages = document.getElementById('messages');
+            messages.innerHTML += `<p><strong>Topic:</strong> ${data.topic}, <strong>Message:</strong> ${data.message}</p>`;
+        };
+
+        function subscribe() {
+            const topic = document.getElementById('topicInput').value;
+            fetch(`/subscribe?topic=${topic}`)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Inscrito com sucesso no topico ", topic);
+                    } else {
+                        console.error("Falha em se inscrever no topico ", topic);
+                    }
+                })
+                .catch(error => {
+                    console.error("Erro em se inscrever no topico: ", topic, error);
+                });
+        }
+
+        function unsubscribe() {
+            const topic = document.getElementById('topicInput').value;
+            fetch(`/unsubscribe?topic=${topic}`)
+                .then(response => {
+                    if (response.ok) {
+                        console.log("Desinscrito com sucesso ", topic);
+                    } else {
+                        console.error("Falha de se desinscrever no topico :", topic);
+                    }
+                })
+                .catch(error => {
+                    console.error("erro de se desinscrever no topico :", topic, error);
+                });
+        }
+    </script>
+</body>
+</html>
